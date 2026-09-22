@@ -48,7 +48,7 @@ export default {
 
     // Optional API Key Auth Middleware
     const authHeader = request.headers.get("Authorization");
-    const requiredApiKey = env.ALGO_API_KEY || process.env.ALGO_API_KEY;
+    const requiredApiKey = env.ALGO_API_KEY;
     if (requiredApiKey) {
       if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.slice(7) !== requiredApiKey) {
         return jsonResponse({ detail: "Invalid or missing authentication token" }, 401, corsHeaders);
@@ -80,8 +80,8 @@ export default {
           }
         }
 
-        const geminiApiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-        const geminiModel = env.GEMINI_MODEL || process.env.GEMINI_MODEL || "gemini-flash-latest";
+        const geminiApiKey = env.GEMINI_API_KEY;
+        const geminiModel = env.GEMINI_MODEL || "gemini-flash-latest";
 
         if (!geminiApiKey) {
           return jsonResponse({
@@ -373,7 +373,7 @@ function hashStringToUuid(str: string): string {
   return `${hex1}-${hex2}-4${hex3.slice(1)}-8${hex4.slice(1)}-${hex5}`;
 }
 
-async function redisCommand(env: Env, command: string[]) {
+async function redisCommand(env: Env, command: string[]): Promise<any> {
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) return null;
   try {
     const res = await fetch(env.UPSTASH_REDIS_REST_URL, {
@@ -391,7 +391,7 @@ async function redisCommand(env: Env, command: string[]) {
   }
 }
 
-async function qdrantRequest(env: Env, path: string, method: string = "GET", body: any = null) {
+async function qdrantRequest(env: Env, path: string, method: string = "GET", body: any = null): Promise<any> {
   if (!env.QDRANT_URL || !env.QDRANT_API_KEY) return null;
   try {
     const options: any = {
