@@ -107,12 +107,12 @@ describe("algorithm worker", () => {
     const response = await worker.fetch(request("/embed/content", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content_id: "article-1", title: "Jollof", tags: ["rice"] }),
+      body: JSON.stringify({ content_id: "post-1", title: "Jollof", tags: ["rice"] }),
     }), env);
     const result = await body(response);
 
     expect(response.status).toBe(200);
-    expect(result).toMatchObject({ content_id: "article-1", vector_dimensions: 3, qdrant_indexed: true });
+    expect(result).toMatchObject({ content_id: "post-1", vector_dimensions: 3, qdrant_indexed: true });
     expect(ai.run).toHaveBeenCalledWith("@cf/baai/bge-small-en-v1.5", { text: ["Jollof rice"] });
     expect(network).toHaveBeenCalledTimes(2);
     expect((network.mock.calls[1][1] as RequestInit).method).toBe("PUT");
@@ -122,7 +122,7 @@ describe("algorithm worker", () => {
     const ai = { run: vi.fn(async () => ({ data: [[0.4, 0.5]] })) };
     const network = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ status: "ok" })))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ result: [{ id: "point-1", score: 0.91, payload: { content_id: "article-1", title: "Jollof" } }] })));
+      .mockResolvedValueOnce(new Response(JSON.stringify({ result: [{ id: "point-1", score: 0.91, payload: { content_id: "post-1", title: "Jollof" } }] })));
     vi.stubGlobal("fetch", network);
     const env = { AI: ai, QDRANT_URL: "https://qdrant.test", QDRANT_API_KEY: "qdrant-key" } as Env;
 
@@ -134,7 +134,7 @@ describe("algorithm worker", () => {
     const result = await body(response);
 
     expect(response.status).toBe(200);
-    expect(result.items).toEqual([{ content_id: "article-1", content_type: "video", score: 0.91, title: "Jollof" }]);
+    expect(result.items).toEqual([{ content_id: "post-1", content_type: "video", score: 0.91, title: "Jollof" }]);
     expect(result.ab_bucket).toBeGreaterThanOrEqual(0);
     expect(result.ab_bucket).toBeLessThan(100);
   });
